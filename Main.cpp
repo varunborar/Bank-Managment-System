@@ -98,7 +98,7 @@ public:
     void showAccountInfo();              //done
     void depositBalance(long deposit);   //done
     void withdrawBalance(long withdraw); //done
-    void setAccountInfo();
+    void setAccountInfo();               //done
 };
 
 void Account ::depositBalance(long deposit)
@@ -234,7 +234,20 @@ void Account ::setAccountNumber()
 void Account ::setAccountInfo()
 {
     system("cls");
-    
+    gotoxy(0,60);
+    cout<<"Account Information";
+    gotoxy(5,5);
+    cout<<"ENTER A PASSWORD : ";
+    gotoxy(5,6);
+    cout<<"Enter Intial Deposit Amount : ";
+    gotoxy(35,5);
+    setPassword();
+    gotoxy(35,6);
+    int balance;
+    cin>> balance;
+    depositBalance(balance);
+
+    showAccountInfo();
 }
 //Main Function
 
