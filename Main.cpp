@@ -52,25 +52,25 @@ public:
     {
         cin >> age;
     }
-    void getAddress()
+    string getAddress()
     {
-        cout << address;
+        return address;
     }
-    void getName()
+    string getName()
     {
-        cout << name;
+        return name;
     }
-    void getAge()
+    int getAge()
     {
-        cout << age;
+        return age;
     }
-    void getMobileNumber()
+    string getMobileNumber()
     {
-        cout << mobileNumber;
+        return mobileNumber;
     }
-    void getDOB()
+    date getDOB()
     {
-        cout << DOB.day << " " << DOB.month << " " << DOB.year;
+        return DOB;
     }
 };
 
@@ -79,15 +79,79 @@ class Account : public Person
 
     long accountNumber;
     long accountBalance;
-    char password[12];
+    char password[11];
 
 public:
-    void createAccount();
-    void showAccountInfo();
-    void depositBalance();
-    void withdrawBalance();
-    void checkBalance();
+    long getAccountNumber()
+    {
+        return accountNumber;
+    }
+    long getBalance()
+    {
+        return accountBalance;
+    }
+    void writeAccountInfo();             //done
+    void readAccountInfo();              //done
+    void setPassword();                  //done
+    void setAccountNumber();             //done
+    void createAccount();                //done
+    void showAccountInfo();              //done
+    void depositBalance(long deposit);   //done
+    void withdrawBalance(long withdraw); //done
+    void setAccountInfo();
 };
+
+void Account ::depositBalance(long deposit)
+{
+    accountBalance = accountBalance + deposit;
+}
+
+void Account ::withdrawBalance(long withdraw)
+{
+    if (withdraw > accountBalance)
+    {
+        cout << "\nNot enough balance!";
+    }
+    else
+    {
+        accountBalance = accountBalance - withdraw;
+    }
+}
+
+void writeAccountInfo(Account writeAcc)
+{
+    fstream sendToFile;
+    sendToFile.open("Accounts.dat", ios::app | ios::binary);
+    sendToFile.write((char *)&writeAcc, sizeof(writeAcc));
+    sendToFile.close();
+}
+
+Account readAccountInfo(long accountNumber)
+{
+    Account acc;
+    fstream readFromFile;
+    int flag = 0;
+    readFromFile.open("Accounts.dat", ios::in | ios::binary);
+
+    if (!readFromFile)
+    {
+        cout << "\nNo Record Found!";
+    }
+
+    while (!readFromFile.eof())
+    {
+        readFromFile.read((char *)&acc, sizeof(acc));
+        if (acc.getAccountNumber() == accountNumber)
+        {
+            flag = 1;
+            return acc;
+        }
+    }
+    if (flag == 0)
+    {
+        cout << " No Such Account Present";
+    }
+}
 
 void Account ::createAccount()
 {
@@ -114,9 +178,10 @@ void Account ::createAccount()
     setAddress();
     gotoxy(45, 9);
     setDOB();
+    setAccountInfo();
 }
 
-void Account::showAccountInfo()
+void Account ::showAccountInfo()
 {
     system("cls");
     gotoxy(90, 0);
@@ -138,6 +203,39 @@ void Account::showAccountInfo()
     getDOB();
 }
 
+void Account ::setPassword()
+{
+    cin >> password;
+}
+
+void Account ::setAccountNumber()
+{
+    fstream checkLastAccountNumber;
+
+    checkLastAccountNumber.open("Accounts.dat", ios ::in | ios ::binary);
+    if (!checkLastAccountNumber)
+    {
+        accountNumber = 110000;
+    }
+    else
+    {
+        fstream getLastRecord;
+        Account last;
+        getLastRecord.open("Accounts.dat", ios::in);
+        getLastRecord.seekg(-sizeof(last), ios::end);
+        getLastRecord.read((char *)&last, sizeof(last));
+        long temp = last.getAccountNumber();
+        temp++;
+        accountNumber = temp;
+        getLastRecord.close();
+    }
+}
+
+void Account ::setAccountInfo()
+{
+    system("cls");
+    
+}
 //Main Function
 
 int main()
