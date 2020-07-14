@@ -72,6 +72,10 @@ class Account : public Person
     char password[11];
 
 public:
+    Account()
+    {
+        accountBalance = 0;
+    }
     long getAccountNumber()
     {
         return accountNumber;
@@ -95,29 +99,36 @@ public:
     void setAccountInfo();               //done
 };
 
-void Account ::depositBalance(long deposit)
-{
-    accountBalance = accountBalance + deposit;
-}
-
-void Account ::withdrawBalance(long withdraw)
-{
-    if (withdraw > accountBalance)
-    {
-        cout << "\nNot enough balance!";
-    }
-    else
-    {
-        accountBalance = accountBalance - withdraw;
-    }
-}
-
 void writeAccountInfo(Account writeAcc)
 {
     fstream sendToFile;
     sendToFile.open("Accounts.dat", ios::app | ios::binary);
     sendToFile.write((char *)&writeAcc, sizeof(writeAcc));
     sendToFile.close();
+}
+
+void updateAccountInfo(Account updatedInfo)
+{
+    fstream openFileToUpdate;
+    Account toBeUpdatedInfo;
+    int pos;
+    
+    openFileToUpdate.open("Accounts.dat", ios :: in | ios :: out | ios :: binary);
+
+    while(!openFileToUpdate.eof())
+    {
+        pos = openFileToUpdate.tellg();
+        openFileToUpdate.read((char*)&toBeUpdatedInfo, sizeof(toBeUpdatedInfo));
+
+        if(toBeUpdatedInfo.getAccountNumber() == updatedInfo.getAccountNumber())
+        {
+            openFileToUpdate.seekp(pos);
+            openFileToUpdate.write((char*)&updatedInfo, sizeof(updatedInfo));
+        }
+
+        openFileToUpdate.close();
+        
+    }
 }
 
 Account readAccountInfo(long accountNum, int *flag)
@@ -146,6 +157,23 @@ Account readAccountInfo(long accountNum, int *flag)
         cout << " No Such Account Present";
     }
     return acc;
+}
+
+void Account ::depositBalance(long deposit)
+{
+    accountBalance = accountBalance + deposit;
+}
+
+void Account ::withdrawBalance(long withdraw)
+{
+    if (withdraw > accountBalance)
+    {
+        cout << "\nNot enough balance!";
+    }
+    else
+    {
+        accountBalance = accountBalance - withdraw;
+    }
 }
 
 void Account ::createAccount()
@@ -180,18 +208,18 @@ void Account ::showAccountInfo()
 {
 
     system("cls");
-    
+
     cout << "\t\t\t\t\t\tAccount Information";
-    
+
     cout << "\nName          : " << getName();
-    
+
     cout << "\nAge           : " << getAge();
-   
+
     cout << "\nMobile Number : " << getMobileNumber();
-    
+
     date dob = getDOB();
     cout << "\nDate of Birth : " << dob.day << "-" << dob.month << "-" << dob.year;
-    
+
     cout << "\nAccount Number: " << getAccountNumber();
 }
 
@@ -258,20 +286,7 @@ void loginMenu(Account userAccount);
 int main()
 {
     system("cls");
-    Account test;
-    // test.createAccount();
-    // test.showAccountInfo();
-    //test.setAccountNumber();
-    //writeAccountInfo(test);
-    // test.createAccount();
-    MainMenu();
-    //MainMenu();
-    return 0;
-}
-
-//Function Definations
-void MainMenu()
-{
+    Account newAccount;
     char mainOption;
     gotoxy(60, 0);
     cout << "Welcome to the Bank!" << endl;
@@ -280,23 +295,18 @@ void MainMenu()
     cout << "3. Exit" << endl;
     cout << "Enter your choice : ";
     cin >> mainOption;
-    MainOption(mainOption);
-}
 
-void MainOption(char mainOption)
-{
-    Account newAccount;
     switch (mainOption)
     {
     case '1':
-        
+
         newAccount.createAccount();
         newAccount.showAccountInfo();
         writeAccountInfo(newAccount);
 
         break;
     case '2':
-        
+
         login();
         break;
     case '3':
@@ -306,7 +316,48 @@ void MainOption(char mainOption)
         cout << "Enter a Valid Choice!";
         break;
     }
+
+    return 0;
 }
+
+//Function Definations
+// void MainMenu()
+// {
+//     char mainOption;
+//     gotoxy(60, 0);
+//     cout << "Welcome to the Bank!" << endl;
+//     cout << "1. Create a new account" << endl;
+//     cout << "2. Login" << endl;
+//     cout << "3. Exit" << endl;
+//     cout << "Enter your choice : ";
+//     cin >> mainOption;
+//     MainOption(mainOption);
+// }
+
+// void MainOption(char mainOption)
+// {
+//     Account newAccount;
+//     switch (mainOption)
+//     {
+//     case '1':
+
+//         newAccount.createAccount();
+//         newAccount.showAccountInfo();
+//         writeAccountInfo(newAccount);
+
+//         break;
+//     case '2':
+
+//         login();
+//         break;
+//     case '3':
+//         system("exit");
+//         break;
+//     default:
+//         cout << "Enter a Valid Choice!";
+//         break;
+//     }
+// }
 
 void login()
 {
@@ -314,75 +365,85 @@ void login()
     long checkAccountNumber;
     int flag = 0;
     char checkPassword[10];
-    gotoxy(35, 40);
+    gotoxy(35, 20);
     cout << "Enter Account Number : ";
     cin >> checkAccountNumber;
     userAccount = readAccountInfo(checkAccountNumber, &flag);
     if (flag == 1)
     {
-        gotoxy(35, 41);
+        gotoxy(35, 21);
         cout << "Enter Password : ";
         cin >> checkPassword;
-        
-        if (strcmpi(userAccount.getPassword(),checkPassword)==0)
+
+        if (strcmpi(userAccount.getPassword(), checkPassword) == 0)
         {
             loginMenu(userAccount);
         }
         else
         {
-            cout<<"\n Password INVALID\n";
+            cout << "\n Password INVALID\n";
         }
-        
     }
 }
 
 void loginMenu(Account userAccount)
 {
-Start:
-
     char subMenuOption;
-    system("cls");
-    gotoxy(0, 4);
-    cout << "1. Show Account Information" << endl;
-    cout << "2. Check Balance" << endl;
-    cout << "3. Deposit Money" << endl;
-    cout << "4. Withdraw Money" << endl;
-    cout << "Press L to logout" << endl;
-    cout << "Enter your Choice : ";
-    cin >> subMenuOption;
-
-    switch (subMenuOption)
+    do
     {
-    case '1':
+
+    Start:
+
         system("cls");
-        userAccount.showAccountInfo();
-        break;
-    case '2':
-        system("cls");
-        userAccount.getBalance();
-        break;
-    case '3':
-        system("cls");
-        int balance;
-        cout << "Enter the amount you want to deposit : ";
-        cin >> balance;
-        userAccount.depositBalance(balance);
-        cout << "Final Balance : " << userAccount.getBalance();
-        break;
-    case '4':
-        system("cls");
-        int withdraw;
-        cout << "Enter the amount you want to withdraw : ";
-        cin >> withdraw;
-        userAccount.withdrawBalance(withdraw);
-        cout << "Final Balance : " << userAccount.getBalance();
-        break;
-    case 'L':
-    case 'l':
-        MainMenu();
-        break;
-    default:
-        cout << "\n Enter a Valid Choice";
-        goto Start;
-    }
+        gotoxy(0, 4);
+        cout << "1. Show Account Information" << endl;
+        cout << "2. Check Balance" << endl;
+        cout << "3. Deposit Money" << endl;
+        cout << "4. Withdraw Money" << endl;
+        cout << "Press L to logout" << endl;
+        cout << "Enter your Choice : ";
+        cin >> subMenuOption;
+
+        switch (subMenuOption)
+        {
+        case '1':
+            system("cls");
+            userAccount.showAccountInfo();
+            cout<<endl;
+            system("pause");
+            break;
+        case '2':
+            system("cls");
+            cout << "Balance : " << userAccount.getBalance()<<endl;
+            system("pause");
+            break;
+        case '3':
+            system("cls");
+            int balance;
+            cout << "Enter the amount you want to deposit : ";
+            cin >> balance;
+            userAccount.depositBalance(balance);
+            cout << "Final Balance : " << userAccount.getBalance()<<endl;
+            updateAccountInfo(userAccount);
+            system("pause");
+            break;
+        case '4':
+            system("cls");
+            int withdraw;
+            cout << "Enter the amount you want to withdraw : ";
+            cin >> withdraw;
+            userAccount.withdrawBalance(withdraw);
+            cout << "Final Balance : " << userAccount.getBalance()<<endl;
+            updateAccountInfo(userAccount);
+            system("pause");
+            break;
+        case 'L':
+        case 'l':
+            return;
+        default:
+            cout << "\n Enter a Valid Choice";
+            goto Start;
+        }
+    } while (subMenuOption != 'l' || subMenuOption != 'L');
+
 }
