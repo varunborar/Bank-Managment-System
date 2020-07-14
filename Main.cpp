@@ -1,5 +1,4 @@
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <fstream>
 #include <windows.h>
@@ -25,38 +24,29 @@ struct date
 
 class Person
 {
-    string name;
-    string mobileNumber;
+    char name[25];
+    char mobileNumber[11];
     date DOB;
-    //string address;
     unsigned int age;
 
 public:
-    void setName()
+    void setName(char *nm)
     {
-        getline(cin, name);
+        strcpy(name, nm);
     }
-    void setMobileNumber()
+    void setMobileNumber(char *mob)
     {
-        getline(std::cin, mobileNumber);
+        strcpy(mobileNumber, mob);
     }
-    void setDOB()
+    void setDOB(date dob)
     {
-        cin >> DOB.day >> DOB.month >> DOB.year;
+        DOB = dob;
     }
-    // void setAddress()
-    // {
-    //     getline(cin, address);
-    // }
-    void setAge()
+    void setAge(int Age)
     {
-        cin >> age;
+        age = Age;
     }
-    // string getAddress()
-    // {
-    //     return address;
-    // }
-    string getName()
+    char *getName()
     {
         return name;
     }
@@ -64,7 +54,7 @@ public:
     {
         return age;
     }
-    string getMobileNumber()
+    char *getMobileNumber()
     {
         return mobileNumber;
     }
@@ -130,7 +120,7 @@ void writeAccountInfo(Account writeAcc)
     sendToFile.close();
 }
 
-Account readAccountInfo(long accountNum, int flag)
+Account readAccountInfo(long accountNum, int *flag)
 {
     Account acc;
     fstream readFromFile;
@@ -147,65 +137,62 @@ Account readAccountInfo(long accountNum, int flag)
         readFromFile.read((char *)&acc, sizeof(acc));
         if (acc.getAccountNumber() == accountNum)
         {
-            flag = 1;
+            *flag = 1;
             return acc;
         }
     }
-    if (flag == 0)
+    if (*flag == 0)
     {
         cout << " No Such Account Present";
     }
+    return acc;
 }
 
 void Account ::createAccount()
 {
+    char name[25], mobileNumber[12];
+    int age;
+    date dob;
     system("cls");
-    gotoxy(90, 0);
-    cout << "Create Account";
-    gotoxy(5, 5);
-    cout << "Enter your Name          : ";
-    gotoxy(5, 6);
-    cout << "Enter your mobile number : ";
-    gotoxy(5, 7);
-    cout << "Enter your age           : ";
-    gotoxy(5, 8);
-    // cout << "Enter your home address  : ";
-    // gotoxy(5, 9);
-    cout << "Enter your Date of Birth (DD MM YYYY) : ";
-    gotoxy(35, 5);
-    setName();
-    gotoxy(35, 6);
-    setMobileNumber();
-    gotoxy(35, 7);
-    setAge();
-    gotoxy(35, 8);
-   //setAddress();
-   // gotoxy(45, 9);
-    setDOB();
+
+    cout << "\t\t\t\t\t\tCreate Account";
+
+    cout << "\nEnter your Name          : ";
+    cin.getline(name, 24);
+    setName(name);
+
+    cout << "\nEnter your mobile number : ";
+    cin.getline(mobileNumber, 11);
+    setMobileNumber(mobileNumber);
+
+    cout << "\nEnter your age           : ";
+    cin >> age;
+    setAge(age);
+
+    cout << "\nEnter your Date of Birth (DD MM YYYY) : ";
+    cin >> dob.day >> dob.month >> dob.year;
+    setDOB(dob);
+
     setAccountInfo();
 }
 
 void Account ::showAccountInfo()
 {
+
     system("cls");
-    gotoxy(90, 0);
-    cout << "Account Information";
-    gotoxy(5, 5);
-    cout << "Name          : " << getName();
-    gotoxy(5, 6);
-    cout << "Age           : " << getAge();
-    gotoxy(5, 7);
-    cout << "Mobile Number : " << getMobileNumber();
-    gotoxy(5, 8);
-    //cout << "Home address  : " << getAddress();
-    //gotoxy(5, 9);
+    
+    cout << "\t\t\t\t\t\tAccount Information";
+    
+    cout << "\nName          : " << getName();
+    
+    cout << "\nAge           : " << getAge();
+   
+    cout << "\nMobile Number : " << getMobileNumber();
+    
     date dob = getDOB();
-    cout << "Date of Birth : " << dob.day << "-" << dob.month << "-" << dob.year;
-    gotoxy(5, 15);
-    cout << "Bank Account Number : " << getAccountNumber() << endl;
-    gotoxy(5, 16);
-    cout << "Password : " << getPassword() << endl;
-    system("pause");
+    cout << "\nDate of Birth : " << dob.day << "-" << dob.month << "-" << dob.year;
+    
+    cout << "\nAccount Number: " << getAccountNumber();
 }
 
 void Account ::setPassword()
@@ -221,7 +208,6 @@ void Account ::setAccountNumber()
     if (!checkLastAccountNumber)
     {
         accountNumber = 110000;
-        
     }
     else
     {
@@ -235,13 +221,12 @@ void Account ::setAccountNumber()
         accountNumber = temp;
         getLastRecord.close();
     }
-    
 }
 
 void Account ::setAccountInfo()
 {
     system("cls");
-    gotoxy(0, 60);
+    gotoxy(60, 0);
     cout << "Account Information";
     gotoxy(5, 5);
     cout << "ENTER A PASSWORD : ";
@@ -253,10 +238,15 @@ void Account ::setAccountInfo()
     int balance;
     cin >> balance;
     depositBalance(balance);
-
-    showAccountInfo();
+    setAccountNumber();
 }
 
+void Show()
+{
+    Account test;
+    test = readAccountInfo(110008, 0);
+    test.getAccountNumber();
+}
 //Funtion Declaration
 void login();
 void MainOption(char mainOption);
@@ -268,9 +258,14 @@ void loginMenu(Account userAccount);
 int main()
 {
     system("cls");
-    // Account test;
+    Account test;
+    // test.createAccount();
+    // test.showAccountInfo();
+    //test.setAccountNumber();
+    //writeAccountInfo(test);
     // test.createAccount();
     MainMenu();
+    //MainMenu();
     return 0;
 }
 
@@ -294,12 +289,14 @@ void MainOption(char mainOption)
     switch (mainOption)
     {
     case '1':
-        system("cls");
+        
         newAccount.createAccount();
+        newAccount.showAccountInfo();
         writeAccountInfo(newAccount);
+
         break;
     case '2':
-        system("cls");
+        
         login();
         break;
     case '3':
@@ -320,16 +317,22 @@ void login()
     gotoxy(35, 40);
     cout << "Enter Account Number : ";
     cin >> checkAccountNumber;
-    userAccount = readAccountInfo(checkAccountNumber, flag);
+    userAccount = readAccountInfo(checkAccountNumber, &flag);
     if (flag == 1)
     {
         gotoxy(35, 41);
         cout << "Enter Password : ";
         cin >> checkPassword;
-        if (checkPassword == userAccount.getPassword())
+        
+        if (strcmpi(userAccount.getPassword(),checkPassword)==0)
         {
             loginMenu(userAccount);
         }
+        else
+        {
+            cout<<"\n Password INVALID\n";
+        }
+        
     }
 }
 
@@ -345,7 +348,7 @@ Start:
     cout << "3. Deposit Money" << endl;
     cout << "4. Withdraw Money" << endl;
     cout << "Press L to logout" << endl;
-    cout << "Enter your Choice";
+    cout << "Enter your Choice : ";
     cin >> subMenuOption;
 
     switch (subMenuOption)
